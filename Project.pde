@@ -1,0 +1,232 @@
+BarChart chart;
+final int spacing = 16;
+PFont fontBold;
+PFont fontRegular;
+static float e = 0.00000000000001f;
+Table table;
+void setup() {
+  size(600, 600);
+  fontBold = createFont("Arial Bold", 18);
+  fontRegular = createFont("Arial", 18);
+  table = loadTable("CPSC583.csv", "header");
+  println(table.getRowCount() + " total rows in table");
+
+  for (TableRow row : table.rows()) {
+
+    String name = row.getString("Name");
+
+    println(name);
+  }
+
+  ArrayList<Point> points = new ArrayList<Point>();
+  points.add(new Point("a", 1.75));
+  points.add(new Point("b", 1));
+  points.add(new Point("c", 1.5));
+  Data data = new Data(points);
+  chart = new BarChart(100, 100, 400, data, new BarChartOptions( "x-axis",  "y-axis",  color(0),  color(150),  "Bar chart",  "sample bar chart"));
+
+
+  background(0);
+  chart.draw();
+}
+
+void draw() {}
+
+public class BarChart {
+  public int _width;
+  public int x;
+  public int y;
+  public Data data;
+  public BarChartOptions options;
+  public Axis<String> xAxis;
+  public Axis<Float> yAxis;
+  
+  public BarChart(int x, int y, int _width, Data data, BarChartOptions options) {
+    this.data = data;
+    this._width = _width;
+    this.x = x;
+    this.y = y;
+    this.options = options;
+    this.xAxis = new Axis<String>(options.xAxisLabel, new String[]{"a", "b", "c"}, options.axisColor, x + floor(this._width * 0.2), y + floor(this._width * 0.8), floor(this._width * 0.8) - spacing * 2, floor(this._width * 0.2), true,this.options.backgroundColor);
+    this.yAxis = new Axis<Float>(options.yAxisLabel, new Float[]{0.0, 1.0, 2.0}, options.axisColor, x, y + floor(this._width * 0.2), floor(this._width * 0.2), floor(this._width * 0.6), false, this.options.backgroundColor);
+  }
+  
+  void draw() {
+    fill(this.options.backgroundColor);
+    noStroke();
+    square(this.x, this.y, this._width);
+    this.xAxis.draw();
+    this.yAxis.draw();
+    this.plot();
+    this.drawInfoText();
+  }
+  
+  private void drawInfoText() {
+    noStroke();
+    textAlign(LEFT);
+    textFont(fontBold);
+    fill(this.options.axisColor);
+    textSize(spacing * 1.2);
+    text(this.options.title, this.x + spacing*1.5, this.y + spacing*2);
+    textFont(fontRegular);
+    textSize(spacing * 0.8);
+    text(this.options.description, this.x + spacing*1.5, this.y + spacing*3);
+  }
+  
+  private void plot() {
+    HashMap<String, Integer> xCoords = this.xAxis.getCoords();
+    HashMap<String, Integer> yCoords = this.yAxis.getCoords();
+    int yAxisSpacing = this.yAxis._height / (this.yAxis.values.length - 1);
+    int barWidth = max(((this.xAxis._width - spacing * 3) / (this.xAxis.values.length - 1)) / 3, 20);
+    for(int i = 0; i < this.data.points.size(); i++) {
+      Point _point = this.data.points.get(i);
+      int _x = xCoords.get(_point.group);
+      int _yy = yCoords.get(this.yAxis.values[this.yAxis.indexOfValue(float(floor(_point.value)))].toString());
+      float _y = _yy - yAxisSpacing * (_point.value - floor(_point.value));
+      rect(_x - (barWidth - spacing) / 2, _y, barWidth - spacing, this.xAxis.y - _y);
+    }
+  }
+}
+
+ public class BarChartOptions {
+  public String xAxisLabel;
+  public String yAxisLabel;
+  public color axisColor;
+  public color backgroundColor;
+  public String title;
+  public String description;
+
+  public BarChartOptions(String xAxisLabel, String yAxisLabel, color axisColor, color backgroundColor, String title, String description) {
+    this.xAxisLabel = xAxisLabel;
+    this.yAxisLabel = yAxisLabel;
+    this.axisColor = axisColor;
+    this.backgroundColor = backgroundColor;
+    this.title = title; 
+    this.description = description;
+  }
+}
+  
+public class Axis<T> {
+  public String label;
+  public String alignment = "center";
+  public T[] values;
+  public color _color;
+  public int _width;
+  public int _height;
+  public int x;
+  public int y;
+  public Boolean isHorizontal;
+  public color backgroundColor;
+  
+  public Axis(String label, T[] values, color _color, int x, int y, int _width, int _height, Boolean isHorizontal, color backgroundColor) {
+    this.label = label;
+    this.values = values;
+    this._color = _color; //<>//
+    this._width = _width;
+    this._height = _height;
+    this.x = x;
+    this.y = y;
+    this.isHorizontal = isHorizontal;
+    this.backgroundColor = backgroundColor;
+  }
+  
+  public HashMap<String, Integer> getCoords() {
+    HashMap<String, Integer> coords = new HashMap<String, Integer>();
+    for(int i = 0; i < this.values.length; i++) {
+     if(isHorizontal) {
+        int _x = this.x + (i * (this._width-spacing * 3) / (this.values.length - 1)) + spacing;
+        coords.put(this.values[i].toString(), floor(_x));
+      } else {  
+        int _y = this.y + (i * (this._height) / (this.values.length - 1));
+        coords.put(this.values[this.values.length - 1 - i].toString(), floor(_y));  
+      }
+    }
+    return coords;
+  }
+  
+  public int indexOfValue(T value) {
+    for(int i = 0; i < this.values.length; i++) {
+     if (abs((float) value - (float) this.values[i]) < e) {
+       return i;
+     }
+    }
+    return -1;
+  }
+  
+  public void draw() {
+    fill(this.backgroundColor);
+    noStroke();
+    rect(this.x, this.y, this._width, this._height);
+    textFont(fontBold);
+    fill(_color);
+    stroke(_color);
+    strokeWeight(1);    
+    textSize(spacing);
+    if(isHorizontal) {
+      textAlign(CENTER);
+      text(this.label, (this.x * 2+this._width)/2, this.y + this._height - spacing*2);
+      line(this.x, this.y, this.x + this._width, this.y);
+      for(int i = 0; i < this.values.length; i++) {
+        int _x = this.x + (i * (this._width - spacing*3) / (this.values.length - 1)) + spacing;
+        line(_x, this.y + 5, _x, this.y);
+        textAlign(CENTER, TOP);
+        text(this.values[i].toString(), _x, this.y + spacing / 2);
+      }
+    } else {
+      pushMatrix();
+      translate(this.x + spacing*2, (this.y * 2 + this._height) / 2);
+      rotate(radians(-90));
+      textAlign(CENTER);
+      text(this.label, 0, 0);
+      popMatrix();
+      line(this.x + this._width, this.y, this.x + this._width, this.y + this._height);
+      for(int i = 0; i < this.values.length; i++) {
+        int _y = this.y + (i * (this._height ) / (this.values.length-1));
+        line(this.x + this._width - 5, _y, this.x + this._width, _y);
+        textAlign(RIGHT, CENTER);
+        text(this.values[this.values.length - 1 - i].toString(), this.x + this._width - spacing / 2, _y);
+      }
+    }
+  }    
+}
+  
+public class Data {
+  public ArrayList<Point> points;
+  
+  public Data(ArrayList<Point> p) {
+    this.points = p;
+  }
+}
+
+public class Point {
+  public String group;
+  public float value;
+  
+  public Point(String g, float v) {
+    this.group = g;
+    this.value = v;
+  }
+}
+//public class Data {
+//  public ArrayList<Student> students; 
+  
+//}
+
+//public class Student {
+//  public Day[] days;
+//}
+
+//public class Day {
+//  public double sleep;
+//  public int energyLevel;
+//  public String mood;
+//  public double foodIntake;
+//  public String exerciseType;
+//  public double exerciseDuration;
+//  public double sTEntertainmentDuration;
+//  public double sTAcademicsDuration;
+//  public int stressLevel;
+//  public int numberOfSocialInteractions;
+//  public double leisureTime;
+//  public int numberOfSleepInteruptions;
+//}
