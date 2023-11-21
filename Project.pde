@@ -4,27 +4,18 @@ PFont fontBold;
 PFont fontRegular;
 static float e = 0.00000000000001f;
 Table table;
+
 void setup() {
   size(600, 600);
   fontBold = createFont("Arial Bold", 18);
   fontRegular = createFont("Arial", 18);
   table = loadTable("CPSC583.csv", "header");
-  println(table.getRowCount() + " total rows in table");
-
-  for (TableRow row : table.rows()) {
-
-    String name = row.getString("Name");
-
-    println(name);
-  }
-
   ArrayList<Point> points = new ArrayList<Point>();
   points.add(new Point("a", 1.75));
-  points.add(new Point("b", 1));
-  points.add(new Point("c", 1.5));
-  Data data = new Data(points);
-  chart = new BarChart(100, 100, 400, data, new BarChartOptions( "x-axis",  "y-axis",  color(0),  color(150),  "Bar chart",  "sample bar chart"));
-
+  points.add(new Point("b", 0.25));
+  points.add(new Point("c", 1));
+  ChartData data = new ChartData(points);
+  chart = new BarChart(100, 100, 400, data, new BarChartOptions( "x-axis",  "y-axis",  color(0),  color(255),  "Zeeshan is cool",  "joking lol"));
 
   background(0);
   chart.draw();
@@ -32,16 +23,35 @@ void setup() {
 
 void draw() {}
 
+public class MainVis {
+  public Data data;
+
+}
+
+
+public class Data {
+  public int sleep;
+  public int energyLevel;
+  public int foodIntake;
+  public float exerciseTime;
+  public float entertainmentTime;
+  public float academicTime;
+  public int caloriesBurnt;
+  public int stressLevel;
+}
+
+
+
 public class BarChart {
   public int _width;
   public int x;
   public int y;
-  public Data data;
+  public ChartData data;
   public BarChartOptions options;
   public Axis<String> xAxis;
   public Axis<Float> yAxis;
   
-  public BarChart(int x, int y, int _width, Data data, BarChartOptions options) {
+  public BarChart(int x, int y, int _width, ChartData data, BarChartOptions options) {
     this.data = data;
     this._width = _width;
     this.x = x;
@@ -101,7 +111,7 @@ public class BarChart {
     this.yAxisLabel = yAxisLabel;
     this.axisColor = axisColor;
     this.backgroundColor = backgroundColor;
-    this.title = title; 
+    this.title = title;  //<>//
     this.description = description;
   }
 }
@@ -190,10 +200,10 @@ public class Axis<T> {
   }    
 }
   
-public class Data {
+public class ChartData {
   public ArrayList<Point> points;
   
-  public Data(ArrayList<Point> p) {
+  public ChartData(ArrayList<Point> p) {
     this.points = p;
   }
 }
@@ -207,26 +217,3 @@ public class Point {
     this.value = v;
   }
 }
-//public class Data {
-//  public ArrayList<Student> students; 
-  
-//}
-
-//public class Student {
-//  public Day[] days;
-//}
-
-//public class Day {
-//  public double sleep;
-//  public int energyLevel;
-//  public String mood;
-//  public double foodIntake;
-//  public String exerciseType;
-//  public double exerciseDuration;
-//  public double sTEntertainmentDuration;
-//  public double sTAcademicsDuration;
-//  public int stressLevel;
-//  public int numberOfSocialInteractions;
-//  public double leisureTime;
-//  public int numberOfSleepInteruptions;
-//}
