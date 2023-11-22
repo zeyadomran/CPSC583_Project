@@ -8,7 +8,7 @@ Table table;
 int[] angles = { 30, 10, 45, 35, 60, 38, 75, 67 };
 
 void setup() {
-  size(1000, 600);
+  size(1100, 600);
   fontBold = createFont("Arial Bold", 18);
   fontRegular = createFont("Arial", 18);
   table = loadTable("CPSC583.csv", "header");
@@ -22,7 +22,7 @@ void setup() {
   background(0);
   chart.draw();
   
-  pieChart = new PieChart(570, 80, 500, 300, angles);
+  pieChart = new PieChart(600, 80, 500, 300, angles);
   pieChart.draw();
 }
 
