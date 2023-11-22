@@ -22,6 +22,13 @@ String selectedInterval = "";
 
 void setup() {
   size(1100, 1100);
+float[] valuesExcercise = {2, 4, 1, 0.5, 2, 1.5};
+float[] valuesStress = {7, 3, 8, 9, 7, 5};
+String[] legendText = {"Zeeshan", "Zeyad", "Numan", "Eric", "Mahmoud", "Britney"};
+
+
+void setup() {
+  size(1400, 1400);
   fontBold = createFont("Arial Bold", 18);
   fontRegular = createFont("Arial", 18);
   table = loadTable("CPSC583.csv", "header");
@@ -119,6 +126,8 @@ void mouseClicked() { //<>//
   mainVis4.mouseClicked();
   mainVis5.mouseClicked();
   button.mouseClicked();
+  
+}
   
 }
 
