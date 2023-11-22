@@ -1,5 +1,6 @@
 BarChart chart;
 PieChart pieChart;
+LineChart lineChart;
 final int spacing = 16;
 PFont fontBold;
 PFont fontRegular;
@@ -26,6 +27,15 @@ void setup() {
   pieChart = new PieChart(700, 80, 500, 300, angles);
   pieChart.draw("My PieChart");
   pieChart.drawLegend(legendText);
+  
+  float[] xValues = {0, 1, 2, 3, 4, 5};
+  float[] yValues = {50, 120, 80, 160, 200, 90};
+  String xAxisLabel = "Money";
+  String yAxisLabel = "Time";
+  String chartTitle = "583 - Line chart";
+  String chartSubtitle = "- Numan";
+  lineChart = new LineChart(xValues, yValues, xAxisLabel, yAxisLabel, chartTitle, chartSubtitle);
+  lineChart.draw();
 }
 
 void draw() {}
@@ -48,6 +58,113 @@ public class Data {
   public int caloriesBurnt;
   public int stressLevel;
 }
+
+
+public class LineChart {
+  float[] xValues;
+  float[] yValues;
+  String xAxisLabel;
+  String yAxisLabel;
+  String title;
+  String subtitle;
+
+  LineChart(float[] xValues, float[] yValues, String xAxisLabel, String yAxisLabel, String title, String subtitle) {
+    this.xValues = xValues;
+    this.yValues = yValues;
+    this.xAxisLabel = xAxisLabel;
+    this.yAxisLabel = yAxisLabel;
+    this.title = title;
+    this.subtitle = subtitle;
+  }
+
+  void draw() {
+    // Set background to white
+    background(255);
+
+    // Draw title
+    textAlign(CENTER);
+    textSize(20);
+    fill(0); // Black text color
+    text(title, width / 2, 30);
+
+    // Draw subtitle
+    textSize(14);
+    text(subtitle, width / 2, 50);
+
+    // Draw x-axis label
+    text(xAxisLabel, width / 2, height - 10);
+
+    // Draw y-axis label
+    pushMatrix();
+    translate(20, height / 2);
+    rotate(-HALF_PI);
+    text(yAxisLabel, 0, 0);
+    popMatrix();
+
+    // Draw the line chart
+    drawLineChart();
+  }
+
+  void drawLineChart() {
+    // Set up the coordinate system
+    float xPadding = 80;
+    float yPadding = 60;
+    float chartWidth = width - 2 * xPadding;
+    float chartHeight = height - 2 * yPadding;
+
+    // Draw x-axis
+    stroke(0); // Black lines
+    line(xPadding, height - yPadding, width - xPadding, height - yPadding);
+
+    // Draw y-axis
+    line(xPadding, height - yPadding, xPadding, yPadding);
+
+    // Draw markings on x-axis
+    float xIncrement = chartWidth / (xValues.length - 1);
+    for (int i = 0; i < xValues.length; i++) {
+      float x = xPadding + i * xIncrement;
+      line(x, height - yPadding + 5, x, height - yPadding - 5);
+      textAlign(CENTER);
+      text(nf(xValues[i], 0, 2), x, height - yPadding + 20);
+    }
+
+    // Draw markings on y-axis
+    float yIncrement = chartHeight / (max(yValues) - min(yValues));
+    for (float i = min(yValues); i <= max(yValues); i += 20) {
+      float y = map(i, min(yValues), max(yValues), height - yPadding, yPadding);
+      line(xPadding - 5, y, xPadding + 5, y);
+      textAlign(RIGHT);
+      text(nf(i, 0, 2), xPadding - 10, y);
+    }
+
+    // Draw lines connecting data points
+    noFill();
+    stroke(0); // Black lines
+    beginShape();
+    for (int i = 0; i < xValues.length; i++) {
+      float x = map(xValues[i], min(xValues), max(xValues), xPadding, width - xPadding);
+      float y = map(yValues[i], max(yValues), min(yValues), yPadding, height - yPadding);
+      vertex(x, y);
+    }
+    endShape();
+
+    // Draw points with coordinates
+    for (int i = 0; i < xValues.length; i++) {
+      float x = map(xValues[i], min(xValues), max(xValues), xPadding, width - xPadding);
+      float y = map(yValues[i], max(yValues), min(yValues), yPadding, height - yPadding);
+      fill(0); // Black points
+      ellipse(x, y, 8, 8);
+
+      // Display point coordinates
+      textAlign(LEFT);
+      text("(" + nf(xValues[i], 0, 2) + ", " + nf(yValues[i], 0, 2) + ")", x + 10, y - 10);
+    }
+  }
+}
+
+
+
+
 
 
 public class PieChart {
