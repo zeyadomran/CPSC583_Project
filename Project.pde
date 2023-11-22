@@ -1,12 +1,14 @@
 BarChart chart;
+PieChart pieChart;
 final int spacing = 16;
 PFont fontBold;
 PFont fontRegular;
 static float e = 0.00000000000001f;
 Table table;
+int[] angles = { 30, 10, 45, 35, 60, 38, 75, 67 };
 
 void setup() {
-  size(600, 600);
+  size(1000, 600);
   fontBold = createFont("Arial Bold", 18);
   fontRegular = createFont("Arial", 18);
   table = loadTable("CPSC583.csv", "header");
@@ -19,9 +21,14 @@ void setup() {
 
   background(0);
   chart.draw();
+  
+  pieChart = new PieChart(570, 80, 500, 300, angles);
+  pieChart.draw();
 }
 
 void draw() {}
+
+
 
 public class MainVis {
   public Data data;
@@ -38,6 +45,59 @@ public class Data {
   public float academicTime;
   public int caloriesBurnt;
   public int stressLevel;
+}
+
+
+public class PieChart {
+  
+  // Properties of the PieChart
+  public int[] angles;     // Array to store the angles of each pie slice
+  public float diameter;   // Diameter of the pie chart
+  public int _width;       // Width of the white square background
+  public int x;            // X-coordinate of the top-left corner of the white square
+  public int y;            // Y-coordinate of the top-left corner of the white square
+  
+  // Constructor to initialize the PieChart
+  public PieChart(int x, int y, int _width, float diameter, int[] data) {
+    this.angles = data;
+    this.diameter = diameter;
+    this._width = _width;
+    this.x = x;
+    this.y = y;
+  }
+  
+  // Method to draw the PieChart
+  void draw() {
+    // Draw a white square behind the pie chart
+    fill(255);
+    square(this.x, this.y, this._width);
+  
+    float lastAngle = 0;
+    for (int i = 0; i < this.angles.length; i++) {
+      // Generate random values for hue, saturation, and brightness
+      float hue = random(0, 360);
+      float saturation = random(50, 100); // Adjust the range as needed
+      float brightness = random(50, 100); // Adjust the range as needed
+  
+      // Set the fill color using HSB color mode with random values
+      fill(hue, saturation, brightness);
+  
+      // Draw the arc
+      arc(300 + width/2, height/2, this.diameter, this.diameter, lastAngle, lastAngle + radians(this.angles[i]));
+  
+      // Calculate the position for the label
+      float labelAngle = lastAngle + radians(this.angles[i] / 2);
+      float labelX = cos(labelAngle) * (this.diameter / 2 + 50) + 300 + width/2;
+      float labelY = sin(labelAngle) * (this.diameter / 2 + 50) + height/2;
+  
+      // Draw the text label
+      fill(0); // Set text color to black
+      textAlign(CENTER, CENTER);
+      text(nf(this.angles[i], 0, 2), labelX, labelY); // Display value with 2 decimal places
+  
+      lastAngle += radians(this.angles[i]);
+    }
+  }
 }
 
 
@@ -162,6 +222,7 @@ public class Axis<T> {
     }
     return -1;
   }
+ 
   
   public void draw() {
     fill(this.backgroundColor);
