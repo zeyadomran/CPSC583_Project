@@ -93,6 +93,7 @@ public class PieChart {
   }
   
   // Method to draw the PieChart
+  // Method to draw the PieChart
   void draw(String chartTitle) {
     // Draw a white square behind the pie chart
     fill(255);
@@ -116,12 +117,12 @@ public class PieChart {
       fill(colorInt);
   
       // Draw the arc
-      arc(this.x/2.7 + width/2, height/2, this.diameter, this.diameter, lastAngle, lastAngle + radians(this.angles[i]));
+      arc(260 + this.x, 240 + this.y, this.diameter, this.diameter, lastAngle, lastAngle + radians(this.angles[i]));
   
       // Calculate the position for the label
       float labelAngle = lastAngle + radians(this.angles[i] / 2);
-      float labelX = cos(labelAngle) * (this.diameter / 2 + 50) + this.x/2.7 + width/2;
-      float labelY = sin(labelAngle) * (this.diameter / 2 + 50) + height/2;
+      float labelX = cos(labelAngle) * (this.diameter / 2 + 50) + 260 + this.x;
+      float labelY = sin(labelAngle) * (this.diameter / 2 + 50) + 240 + this.y;
   
       // Draw the text label
       fill(0); // Set text color to black
