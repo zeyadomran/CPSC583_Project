@@ -1,5 +1,6 @@
 BarChart chart;
 PieChart pieChart;
+LineChart lineChart;
 final int spacing = 16;
 PFont fontBold;
 PFont fontRegular;
@@ -9,7 +10,7 @@ int[] angles = { 30, 10, 45, 35, 60, 38, 75, 67 };
 String[] legendText = {"Label 1", "Label 2", "Label 3", "Label 4", "Label 5", "Label 6", "Label 7", "Label 8", "Label 9"};
 
 void setup() {
-  size(1400, 600);
+  size(2200, 600);
   fontBold = createFont("Arial Bold", 18);
   fontRegular = createFont("Arial", 18);
   table = loadTable("CPSC583.csv", "header");
@@ -26,6 +27,15 @@ void setup() {
   pieChart = new PieChart(700, 80, 500, 300, angles);
   pieChart.draw("My PieChart");
   pieChart.drawLegend(legendText);
+  
+  float[] xValues = {0, 1, 2, 3, 4, 5};
+  float[] yValues = {50, 120, 80, 160, 200, 90};
+  String xAxisLabel = "Money";
+  String yAxisLabel = "Time";
+  String chartTitle = "583 - Line chart";
+  String chartSubtitle = "- Numan";
+  lineChart = new LineChart(xValues, yValues, xAxisLabel, yAxisLabel, chartTitle, chartSubtitle,1300,100);
+  lineChart.draw();
 }
 
 void draw() {}
@@ -48,6 +58,116 @@ public class Data {
   public int caloriesBurnt;
   public int stressLevel;
 }
+
+public class LineChart {
+  float[] xValues;
+  float[] yValues;
+  String xAxisLabel;
+  String yAxisLabel;
+  String title;
+  String subtitle;
+  float chartX;
+  float chartY;
+  float chartWidth = 400;
+  float chartHeight = 400;
+  float boxPadding = 10; // Padding around the chart box
+
+  LineChart(float[] xValues, float[] yValues, String xAxisLabel, String yAxisLabel, String title, String subtitle, float chartX, float chartY) {
+    this.xValues = xValues;
+    this.yValues = yValues;
+    this.xAxisLabel = xAxisLabel;
+    this.yAxisLabel = yAxisLabel;
+    this.title = title;
+    this.subtitle = subtitle;
+    this.chartX = chartX;
+    this.chartY = chartY;
+  }
+
+  void draw() {
+    // Draw chart box
+    fill(200); // Box color
+    rect(chartX - boxPadding, chartY - boxPadding, chartWidth + 2 * boxPadding, chartHeight + 2 * boxPadding);
+
+    // Draw title
+    textAlign(CENTER);
+    textSize(16);
+    fill(0); // Black text color
+    text(title, chartX + chartWidth / 2, chartY - boxPadding);
+
+    // Draw subtitle
+    textSize(12);
+    text(subtitle, chartX + chartWidth / 2, chartY);
+
+    // Draw x-axis label
+    text(xAxisLabel, chartX + chartWidth / 2, chartY + chartHeight + boxPadding + 20);
+
+    // Draw y-axis label
+    pushMatrix();
+    translate(chartX - boxPadding - 20, chartY + chartHeight / 2);
+    rotate(-HALF_PI);
+    text(yAxisLabel, 0, 0);
+    popMatrix();
+
+    // Draw the line chart within the box
+    drawLineChart(chartX, chartY, chartWidth, chartHeight);
+  }
+
+  void drawLineChart(float x, float y, float width, float height) {
+    // Set up the coordinate system
+    float xPadding = 40;
+    float yPadding = 40;
+
+    // Draw x-axis
+    stroke(0); // Black lines
+    line(x + xPadding, y + height - yPadding, x + width - xPadding, y + height - yPadding);
+
+    // Draw y-axis
+    line(x + xPadding, y + height - yPadding, x + xPadding, y + yPadding);
+
+    // Draw markings on x-axis
+    float xIncrement = (width - 2 * xPadding) / (xValues.length - 1);
+    for (int i = 0; i < xValues.length; i++) {
+      float xPos = x + xPadding + i * xIncrement;
+      line(xPos, y + height - yPadding + 5, xPos, y + height - yPadding - 5);
+      textAlign(CENTER);
+      text(nf(xValues[i], 0, 2), xPos, y + height - yPadding + 20);
+    }
+
+    // Draw markings on y-axis
+    float yIncrement = (height - 2 * yPadding) / (max(yValues) - min(yValues));
+    for (float i = min(yValues); i <= max(yValues); i += 20) {
+      float yPos = map(i, min(yValues), max(yValues), y + height - yPadding, y + yPadding);
+      line(x + xPadding - 5, yPos, x + xPadding + 5, yPos);
+      textAlign(RIGHT);
+      text(nf(i, 0, 2), x + xPadding - 10, yPos);
+    }
+
+    // Draw lines connecting data points
+    noFill();
+    stroke(0); // Black lines
+    beginShape();
+    for (int i = 0; i < xValues.length; i++) {
+      float xPos = map(xValues[i], min(xValues), max(xValues), x + xPadding, x + width - xPadding);
+      float yPos = map(yValues[i], max(yValues), min(yValues), y + yPadding, y + height - yPadding);
+      vertex(xPos, yPos);
+    }
+    endShape();
+
+    // Draw points with coordinates
+    for (int i = 0; i < xValues.length; i++) {
+      float xPos = map(xValues[i], min(xValues), max(xValues), x + xPadding, x + width - xPadding);
+      float yPos = map(yValues[i], max(yValues), min(yValues), y + yPadding, y + height - yPadding);
+      fill(0); // Black points
+      ellipse(xPos, yPos, 8, 8);
+
+      // Display point coordinates
+      textAlign(LEFT);
+      text("(" + nf(xValues[i], 0, 2) + ", " + nf(yValues[i], 0, 2) + ")", xPos + 10, yPos - 10);
+    }
+  }
+}
+
+
 
 
 public class PieChart {
