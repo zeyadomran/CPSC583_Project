@@ -6,9 +6,10 @@ PFont fontRegular;
 static float e = 0.00000000000001f;
 Table table;
 int[] angles = { 30, 10, 45, 35, 60, 38, 75, 67 };
+String[] legendText = {"Label 1", "Label 2", "Label 3", "Label 4", "Label 5", "Label 6", "Label 7", "Label 8", "Label 9"};
 
 void setup() {
-  size(1100, 600);
+  size(1400, 600);
   fontBold = createFont("Arial Bold", 18);
   fontRegular = createFont("Arial", 18);
   table = loadTable("CPSC583.csv", "header");
@@ -22,8 +23,9 @@ void setup() {
   background(0);
   chart.draw();
   
-  pieChart = new PieChart(600, 80, 500, 300, angles);
-  pieChart.draw();
+  pieChart = new PieChart(750, 80, 500, 300, angles);
+  pieChart.draw("My PieChart");
+  pieChart.drawLegend(legendText);
 }
 
 void draw() {}
@@ -66,21 +68,52 @@ public class PieChart {
     this.y = y;
   }
   
+  // Method to draw the legend
+  void drawLegend(String[] legendText) {
+    float legendX = this.x + this._width + 20;
+    float legendY = this.y + 20;
+  
+    for (int i = 0; i < this.angles.length && i < legendText.length; i++) {
+      // Use HSB color space with varying hues for contrast
+      float hue = map(i, 0, this.angles.length, 0, 360);
+      float saturation = 90; // Adjusted saturation for more contrast
+      float brightness = 90; // Adjusted brightness for more contrast
+  
+      // Use the color() function to create a color value
+      int colorInt = color(hue, saturation, brightness);
+      fill(colorInt);
+      rect(legendX, legendY + i * 30, 20, 20);
+  
+      fill(255); // Set text color to white
+      textAlign(LEFT, CENTER);
+      
+      // Use the legendText array for dynamic legend labels
+      text(legendText[i], legendX + 30, legendY + i * 30 + 10);
+    }
+  }
+  
   // Method to draw the PieChart
-  void draw() {
+  void draw(String chartTitle) {
     // Draw a white square behind the pie chart
     fill(255);
     square(this.x, this.y, this._width);
+    
+    // Draw the title
+    fill(255); // Set text color to black
+    textAlign(CENTER, CENTER);
+    textSize(20);
+    text(chartTitle, this.x + this._width / 2, this.y - 20);
   
     float lastAngle = 0;
     for (int i = 0; i < this.angles.length; i++) {
-      // Generate random values for hue, saturation, and brightness
-      float hue = random(0, 360);
-      float saturation = random(50, 100); // Adjust the range as needed
-      float brightness = random(50, 100); // Adjust the range as needed
+      // Use HSB color space with varying hues for contrast
+      float hue = map(i, 0, this.angles.length, 0, 360);
+      float saturation = 90; // Adjusted saturation for more contrast
+      float brightness = 90; // Adjusted brightness for more contrast
   
-      // Set the fill color using HSB color mode with random values
-      fill(hue, saturation, brightness);
+      // Use the color() function to create a color value
+      int colorInt = color(hue, saturation, brightness);
+      fill(colorInt);
   
       // Draw the arc
       arc(300 + width/2, height/2, this.diameter, this.diameter, lastAngle, lastAngle + radians(this.angles[i]));
