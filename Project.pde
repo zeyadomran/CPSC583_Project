@@ -21,13 +21,6 @@ String selectedCategory = "";
 String selectedInterval = "";
 
 void setup() {
-  size(1100, 1100);
-float[] valuesExcercise = {2, 4, 1, 0.5, 2, 1.5};
-float[] valuesStress = {7, 3, 8, 9, 7, 5};
-String[] legendText = {"Zeeshan", "Zeyad", "Numan", "Eric", "Mahmoud", "Britney"};
-
-
-void setup() {
   size(1400, 1400);
   fontBold = createFont("Arial Bold", 18);
   fontRegular = createFont("Arial", 18);
@@ -77,6 +70,7 @@ void setup() {
   dropdown = new Dropdown(850, 50, dates);
   button = new Button(850, 50);
 }
+
 void draw() {
   background(0);
   //chart.draw();
@@ -112,12 +106,12 @@ void draw() {
       }
     }
     ChartData d = new ChartData(points);
-    chart = new BarChart(50, 50, 600, d, new BarChartOptions("Name", selectedCategory, color(0), color(150), selectedDate + " - " + selectedInterval, "Category: " + selectedCategory));
+    chart = new BarChart(50, 50, 800, d, new BarChartOptions("Name", selectedCategory, color(0), color(150), selectedDate + " - " + selectedInterval, "Category: " + selectedCategory));
     chart.draw();
     button.draw();
   }
 }
-
+ //<>//
 void mouseClicked() { //<>//
   dropdown.mouseClicked();
   mainVis1.mouseClicked();
@@ -126,8 +120,6 @@ void mouseClicked() { //<>//
   mainVis4.mouseClicked();
   mainVis5.mouseClicked();
   button.mouseClicked();
-  
-}
   
 }
 
@@ -323,7 +315,6 @@ public class MainVis {
           if (mouseY >= p.y && mouseY <= p.y + 10) {
             selectedCategory = k;
             selectedInterval = this.options.title;
-            println(k, this.options.title);
          }
        }
      }
@@ -481,13 +472,13 @@ public class BarChart {
         groups.add(p.group);
       }
       maxVal = max(maxVal, p.value);
+      println(maxVal);
     }
     
-    for(float i = 0; i <= maxVal + max(floor(maxVal/10), 5); i += max(floor(maxVal/10), 1)) {
+    for(float i = 0; i <= maxVal; i += 1) {
       values.add(i);
     }
     
-    println(maxVal);
     
     this.xAxis = new Axis < String > (options.xAxisLabel, groups.toArray(new String[groups.size()]), options.axisColor, x + floor(this._width * 0.2), y + floor(this._width * 0.8), floor(this._width * 0.8) - spacing * 2, floor(this._width * 0.2), true, this.options.backgroundColor);
     this.yAxis = new Axis < Float > (options.yAxisLabel, values.toArray(new Float[values.size()]), options.axisColor, x, y + floor(this._width * 0.2), floor(this._width * 0.2), floor(this._width * 0.6), false, this.options.backgroundColor);
@@ -526,6 +517,8 @@ public class BarChart {
       int _yy = yCoords.get(this.yAxis.values[this.yAxis.indexOfValue(float(floor(_point.value)))].toString());
       float _y = _yy - yAxisSpacing * (_point.value - floor(_point.value));
       rect(_x - (barWidth - spacing) / 2, _y, barWidth - spacing, this.xAxis.y - _y);
+      textAlign(CENTER, CENTER);
+      text(_point.value, _x - (barWidth - spacing) / 2, _y - spacing );
     }
   }
 }
