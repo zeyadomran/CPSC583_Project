@@ -23,7 +23,7 @@ void setup() {
   background(0);
   chart.draw();
   
-  pieChart = new PieChart(750, 80, 500, 300, angles);
+  pieChart = new PieChart(700, 80, 500, 300, angles);
   pieChart.draw("My PieChart");
   pieChart.drawLegend(legendText);
 }
@@ -97,7 +97,7 @@ public class PieChart {
     // Draw a white square behind the pie chart
     fill(255);
     square(this.x, this.y, this._width);
-    
+  
     // Draw the title
     fill(255); // Set text color to black
     textAlign(CENTER, CENTER);
@@ -116,11 +116,11 @@ public class PieChart {
       fill(colorInt);
   
       // Draw the arc
-      arc(300 + width/2, height/2, this.diameter, this.diameter, lastAngle, lastAngle + radians(this.angles[i]));
+      arc(this.x/2.7 + width/2, height/2, this.diameter, this.diameter, lastAngle, lastAngle + radians(this.angles[i]));
   
       // Calculate the position for the label
       float labelAngle = lastAngle + radians(this.angles[i] / 2);
-      float labelX = cos(labelAngle) * (this.diameter / 2 + 50) + 300 + width/2;
+      float labelX = cos(labelAngle) * (this.diameter / 2 + 50) + this.x/2.7 + width/2;
       float labelY = sin(labelAngle) * (this.diameter / 2 + 50) + height/2;
   
       // Draw the text label
@@ -131,6 +131,7 @@ public class PieChart {
       lastAngle += radians(this.angles[i]);
     }
   }
+
 }
 
 
