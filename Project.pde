@@ -5,11 +5,13 @@ PFont fontBold;
 PFont fontRegular;
 static float e = 0.00000000000001f;
 Table table;
-int[] angles = { 30, 10, 45, 35, 60, 38, 75, 67 };
-String[] legendText = {"Label 1", "Label 2", "Label 3", "Label 4", "Label 5", "Label 6", "Label 7", "Label 8", "Label 9"};
+float[] valuesExcercise = {2, 4, 1, 0.5, 2, 1.5};
+float[] valuesStress = {7, 3, 8, 9, 7, 5};
+String[] legendText = {"Zeeshan", "Zeyad", "Numan", "Eric", "Mahmoud", "Britney"};
+
 
 void setup() {
-  size(1400, 600);
+  size(1400, 1400);
   fontBold = createFont("Arial Bold", 18);
   fontRegular = createFont("Arial", 18);
   table = loadTable("CPSC583.csv", "header");
@@ -23,11 +25,14 @@ void setup() {
   background(0);
   chart.draw();
   
-  pieChart = new PieChart(700, 80, 500, 300, angles);
-  pieChart.draw("My PieChart");
+  pieChart = new PieChart(600, 80, 500, 300, valuesExcercise);
+  pieChart.draw("Exercise Distribution");
+  pieChart.drawLegend(legendText);
+  
+  pieChart = new PieChart(600, 700, 500, 300, valuesStress);
+  pieChart.draw("Stress Distribution");
   pieChart.drawLegend(legendText);
 }
-
 void draw() {}
 
 
@@ -53,19 +58,42 @@ public class Data {
 public class PieChart {
   
   // Properties of the PieChart
-  public int[] angles;     // Array to store the angles of each pie slice
+  public float[] angles;     // Array to store the angles of each pie slice
   public float diameter;   // Diameter of the pie chart
   public int _width;       // Width of the white square background
   public int x;            // X-coordinate of the top-left corner of the white square
   public int y;            // Y-coordinate of the top-left corner of the white square
+  public float[] labels;
+  
   
   // Constructor to initialize the PieChart
-  public PieChart(int x, int y, int _width, float diameter, int[] data) {
-    this.angles = data;
+  public PieChart(int x, int y, int _width, float diameter, float[] values) {
+    
+    // Calculate the total sum of values
+    float total = 0;
+    for (float value : values) {
+      total += value;
+    }
+    
+    // Calculate angles and add them to the array
+    float startAngle = 0;
+    this.angles = new float[values.length];
+    for (int i = 0; i < values.length; i++) {
+      float angle = map(values[i], 0, total, 0, TWO_PI); // Map the value to an angle in radians
+      this.angles[i] = degrees(angle);
+      startAngle += angle;
+    }
+    
+    // Print the angles to verify
+    for (float angle : this.angles) {
+      println(angle); // Print angles in degrees
+    }
+ 
     this.diameter = diameter;
     this._width = _width;
     this.x = x;
     this.y = y;
+    this.labels = values;
   }
   
   // Method to draw the legend
@@ -93,7 +121,6 @@ public class PieChart {
   }
   
   // Method to draw the PieChart
-  // Method to draw the PieChart
   void draw(String chartTitle) {
     // Draw a white square behind the pie chart
     fill(255);
@@ -115,19 +142,21 @@ public class PieChart {
       // Use the color() function to create a color value
       int colorInt = color(hue, saturation, brightness);
       fill(colorInt);
+      
+      println(this.angles[i]);
   
       // Draw the arc
       arc(260 + this.x, 240 + this.y, this.diameter, this.diameter, lastAngle, lastAngle + radians(this.angles[i]));
   
       // Calculate the position for the label
-      float labelAngle = lastAngle + radians(this.angles[i] / 2);
+      float labelAngle = lastAngle + radians(int(this.angles[i]) / 2);
       float labelX = cos(labelAngle) * (this.diameter / 2 + 50) + 260 + this.x;
       float labelY = sin(labelAngle) * (this.diameter / 2 + 50) + 240 + this.y;
   
       // Draw the text label
       fill(0); // Set text color to black
       textAlign(CENTER, CENTER);
-      text(nf(this.angles[i], 0, 2), labelX, labelY); // Display value with 2 decimal places
+      text(nf(this.labels[i], 0, 2), labelX, labelY); // Display value with 2 decimal places
   
       lastAngle += radians(this.angles[i]);
     }
