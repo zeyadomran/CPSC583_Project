@@ -472,11 +472,14 @@ public class BarChart {
         groups.add(p.group);
       }
       maxVal = max(maxVal, p.value);
-      println(maxVal);
     }
     
-    for(float i = 0; i <= maxVal; i += 1) {
+    for(float i = 0; i <= maxVal; i += 1.0) {
       values.add(i);
+    }
+    
+    if(maxVal < 1.0) {
+      values.add(1.0);
     }
     
     
@@ -555,7 +558,8 @@ public class Axis < T > {
 
   public Axis(String label, T[] values, color _color, int x, int y, int _width, int _height, Boolean isHorizontal, color backgroundColor) {
     this.label = label;
-    this.values = values;
+    this.values =values;
+    Arrays.sort(this.values);
     this._color = _color;
     this._width = _width;
     this._height = _height;
@@ -603,7 +607,7 @@ public class Axis < T > {
       text(this.label, (this.x * 2 + this._width) / 2, this.y + this._height - spacing * 2);
       line(this.x, this.y, this.x + this._width, this.y);
       for (int i = 0; i < this.values.length; i++) {
-        int _x = this.x + (i * (this._width - spacing * 3) / (this.values.length - 1)) + spacing;
+        int _x = this.x + (i * (this._width - spacing * 3) / (this.values.length > 0 ? this.values.length - 1 : 1)) + spacing;
         line(_x, this.y + 5, _x, this.y);
         textAlign(CENTER, TOP);
         text(this.values[i].toString(), _x, this.y + spacing / 2);
@@ -617,7 +621,7 @@ public class Axis < T > {
       popMatrix();
       line(this.x + this._width, this.y, this.x + this._width, this.y + this._height);
       for (int i = 0; i < this.values.length; i++) {
-        int _y = this.y + (i * (this._height) / (this.values.length - 1));
+        int _y = this.y + (i * (this._height) / (this.values.length > 0 ? this.values.length - 1 : 1));
         line(this.x + this._width - 5, _y, this.x + this._width, _y);
         textAlign(RIGHT, CENTER);
         text(this.values[this.values.length - 1 - i].toString(), this.x + this._width - spacing / 2, _y);
