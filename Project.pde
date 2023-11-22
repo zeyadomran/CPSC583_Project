@@ -7,32 +7,32 @@ MainVis mainVis3;
 MainVis mainVis4;
 MainVis mainVis5;
 Dropdown dropdown;
+Button button;
 
 final int spacing = 16;
 PFont fontBold;
 PFont fontRegular;
 static float e = 0.00000000000001f;
 Table table;
+String selectedDate;
+String lastDate = "";
+HashMap < String, Data > intervalData;
+String selectedCategory = "";
+String selectedInterval = "";
 
 void setup() {
   size(1100, 1100);
   fontBold = createFont("Arial Bold", 18);
   fontRegular = createFont("Arial", 18);
   table = loadTable("CPSC583.csv", "header");
-  ArrayList < Point > points = new ArrayList < Point > ();
-  points.add(new Point("a", 1.75));
-  points.add(new Point("b", 0.25));
-  points.add(new Point("c", 1));
-  ChartData data = new ChartData(points);
-  chart = new BarChart(600, 100, 400, data, new BarChartOptions("x-axis", "y-axis", color(0), color(150), "Bar Chart", "sample"));
-  HashMap < String, Data > intervalData = new HashMap < String, Data > ();
-  Set<String> dates = new HashSet<String>();
-  
+  intervalData = new HashMap < String, Data > ();
+  Set < String > dates = new HashSet < String > ();
+
   for (TableRow row: table.rows()) {
     PersonData rowData = new PersonData();
     String interval = row.getString("Interval");
     String date = row.getString("Date ");
-    if(!dates.contains(date)) {
+    if (!dates.contains(date)) {
       dates.add(date);
     }
     rowData.name = row.getString("Name");
@@ -48,7 +48,7 @@ void setup() {
     rowData.numOfSocialInteractions = row.getInt("# of Social Interactions in Person");
     rowData.numOfSleepInteruptions = row.getInt("# of Sleep Interruptions");
     rowData.numOfChores = row.getInt("Number of Chores");
-  
+
     if (intervalData.containsKey(interval)) {
       Data d = intervalData.get(interval);
       if (d.dates.containsKey(date)) {
@@ -67,73 +67,159 @@ void setup() {
       intervalData.put(interval, d);
     }
   }
-  
-  dropdown = new Dropdown(800, 50, dates);
-
-  ArrayList < PersonData > p = intervalData.get("Overnight").dates.get("10/23/2023");
-  mainVis1 = new MainVis(50, 50, 300, p, new MainVisOptions(color(150), color(0), "Overnight", "10/23/2023"));
-  ArrayList < PersonData > p1 = intervalData.get("Morning").dates.get("10/23/2023");
-  mainVis2 = new MainVis(400, 50, 300, p1, new MainVisOptions(color(150), color(0), "Morning", "10/23/2023"));
-  ArrayList < PersonData > p2 = intervalData.get("Afternoon").dates.get("10/23/2023");
-  mainVis3 = new MainVis(50, 400, 300, p2, new MainVisOptions(color(150), color(0), "Afternoon", "10/23/2023"));
-  ArrayList < PersonData > p3 = intervalData.get("Evening").dates.get("10/23/2023");
-  mainVis4 = new MainVis(400, 400, 300, p3, new MainVisOptions(color(150), color(0), "Evening", "10/23/2023"));
-  ArrayList < PersonData > p4 = intervalData.get("Late Night").dates.get("10/23/2023");
-  mainVis5 = new MainVis(50, 750, 300, p4, new MainVisOptions(color(150), color(0), "Late Night", "10/23/2023"));
- 
+  dropdown = new Dropdown(850, 50, dates);
+  button = new Button(850, 50);
 }
 void draw() {
- background(0);
+  background(0);
   //chart.draw();
-  mainVis1.draw();
-  mainVis2.draw();
-  mainVis3.draw(); 
-  mainVis4.draw(); 
-  mainVis5.draw();
-  dropdown.draw();
+  
+  if(!lastDate.equals(selectedDate)) {
+    lastDate = selectedDate;
+    ArrayList < PersonData > p = intervalData.get("Overnight").dates.get(selectedDate);
+    mainVis1 = new MainVis(50, 50, 300, p, new MainVisOptions(color(150), color(0), "Overnight", selectedDate));
+    ArrayList < PersonData > p1 = intervalData.get("Morning").dates.get(selectedDate);
+    mainVis2 = new MainVis(450, 50, 300, p1, new MainVisOptions(color(150), color(0), "Morning", selectedDate));
+    ArrayList < PersonData > p2 = intervalData.get("Afternoon").dates.get(selectedDate);
+    mainVis3 = new MainVis(50, 400, 300, p2, new MainVisOptions(color(150), color(0), "Afternoon", selectedDate));
+    ArrayList < PersonData > p3 = intervalData.get("Evening").dates.get(selectedDate);
+    mainVis4 = new MainVis(450, 400, 300, p3, new MainVisOptions(color(150), color(0), "Evening", selectedDate));
+    ArrayList < PersonData > p4 = intervalData.get("Late Night").dates.get(selectedDate);
+    mainVis5 = new MainVis(50, 750, 300, p4, new MainVisOptions(color(150), color(0), "Late Night", selectedDate));
+  }
+  
+  if(selectedCategory.equals("") && selectedInterval.equals("")) {
+    mainVis1.draw();
+    mainVis2.draw();
+    mainVis3.draw();
+    mainVis4.draw();
+    mainVis5.draw();
+    dropdown.draw();
+  } else {
+    ArrayList < Point > points = new ArrayList < Point > ();
+    for (TableRow row: table.rows()) {
+      String interval = row.getString("Interval");
+      String date = row.getString("Date ");
+      if (selectedInterval.equals(interval) && selectedDate.equals(date)) {
+        points.add(new Point(row.getString("Name"), row.getFloat(selectedCategory)));
+      }
+    }
+    ChartData d = new ChartData(points);
+    chart = new BarChart(50, 50, 600, d, new BarChartOptions("Name", selectedCategory, color(0), color(150), selectedDate + " - " + selectedInterval, "Category: " + selectedCategory));
+    chart.draw();
+    button.draw();
+  }
 }
 
-void mouseClicked() {
+void mouseClicked() { //<>//
   dropdown.mouseClicked();
+  mainVis1.mouseClicked();
+  mainVis2.mouseClicked();
+  mainVis3.mouseClicked();
+  mainVis4.mouseClicked();
+  mainVis5.mouseClicked();
+  button.mouseClicked();
+  
 }
 
-public class Dropdown {
-  public Set<String> values;
+public class Button {
   public int _width;
   public int _height;
   public int x;
   public int y;
-  public String selected;
-  public boolean expanded;
-  
-   public Dropdown(int x, int y, Set<String> values) {
-    this.values = values;
-    this._width = spacing * 16;
+
+  public Button(int x, int y) {
+    this._width = spacing * 8;
     this.x = x;
     this.y = y;
-    this.selected = null; //<>//
+    this._height = spacing * 3;
+  }
+
+  public void draw() {
+    Boolean hover = false;
+    if (mouseX >= this.x && mouseX <= this.x + this._width && mouseY >= this.y && mouseY <= this.y + this._height) {
+      hover = true;
+    }
+    fill(hover ? color(0,0,255):255);
+    noStroke();
+    rect(this.x, this.y, this._width, this._height);
+    fill(hover ? 255 : 0);
+    textAlign(LEFT, CENTER);
+    textFont(fontBold);
+    text("Back", this.x + spacing, (this.y * 2 + this._height) / 2);
+  }
+
+  public void mouseClicked() {
+    if (mouseX >= this.x && mouseX <= this.x + this._width && mouseY >= this.y && mouseY <= this.y + this._height) {
+      selectedCategory = "";
+      selectedInterval = "";
+    }
+  }
+}
+
+public class Dropdown {
+  public String[] values;
+  public int _width;
+  public int _height;
+  public int x;
+  public int y;
+  public boolean expanded;
+
+  public Dropdown(int x, int y, Set < String > values) {
+    this.values = sort(values.toArray(new String[values.size()]));
+    this._width = spacing * 12;
+    this.x = x;
+    this.y = y;
+    selectedDate = this.values[0];
     this.expanded = false;
     this._height = spacing * 3;
   }
-  
+
   public void draw() {
-   fill(255);
-   noStroke();
-   rect(this.x, this.y, this._width, this._height);
-   fill(0);
-   textAlign(LEFT, CENTER);
-   textFont(fontBold);
-   text(expanded ? "open" : "closed", this.x + spacing * 2, (this.y*2 + this._height) / 2);
-  }
-  
-  public void mouseClicked() {
-    if(mouseX >= this.x && mouseX <= this.x + this._width) {
-     if(mouseY >= this.y && mouseY <= this.y + this._height) {
-       this.expanded = !this.expanded;
-     }
+    fill(255);
+    noStroke();
+    rect(this.x, this.y, this._width, this._height);
+    fill(0);
+    textAlign(LEFT, CENTER);
+    textFont(fontBold);
+    text(this.expanded ? "Dates" : "Date: " + selectedDate, this.x + spacing, (this.y * 2 + this._height) / 2);
+    if(this.expanded) {
+      for(int i = 0; i < this.values.length; i++) {
+        Boolean hover = false;
+        float _x = this.x;
+        float _y = this.y + this._height * i + this._height;
+        if (mouseX >= _x && mouseX <= _x + this._width) {
+          if (mouseY >= _y && mouseY <= _y + this._height) {
+            hover = true;
+          }
+        }
+        fill(this.values[i] == selectedDate || hover ? color(0,0,255) : 255);
+        noStroke();
+        rect(_x, _y, this._width, this._height);
+        fill(this.values[i] == selectedDate || hover ? 255 : 0);
+        textAlign(LEFT, CENTER);
+        textFont(fontBold);
+        text(this.values[i], _x + spacing, (_y * 2 + this._height) / 2);
+      }
     }
   }
-  
+
+  public void mouseClicked() {
+    if (mouseX >= this.x && mouseX <= this.x + this._width && mouseY >= this.y && mouseY <= this.y + this._height) {
+      this.expanded = !this.expanded;
+    } else {
+      this.expanded = false;
+    }
+    for(int i = 0; i < this.values.length; i++) {
+        float _x = this.x;
+        float _y = this.y + this._height * i + this._height;
+        if (mouseX >= _x && mouseX <= _x + this._width) {
+          if (mouseY >= _y && mouseY <= _y + this._height) {
+            selectedDate = this.values[i];
+          }
+        }
+      }
+  }
 }
 
 public class MainVis {
@@ -185,10 +271,9 @@ public class MainVis {
   }
 
   public void drawPoints() {
-    PVector mid = new PVector((this.x*2 + this._width) / 2 + spacing*3, (this.y*2 + this._width + spacing * 2) / 2);
+    PVector mid = new PVector((this.x * 2 + this._width) / 2 + spacing * 3, (this.y * 2 + this._width + spacing * 2) / 2);
     int count = 0;
-    for (PersonData p: this.data) { //<>//
-      //PersonData p = this.data.get(5);
+    for (PersonData p: this.data) {
       stroke(this.colors[count]);
       fill(this.colors[count++]);
       strokeWeight(2);
@@ -222,6 +307,19 @@ public class MainVis {
     }
   }
 
+  public void mouseClicked() {
+    for(String k : this.points.keySet()) {
+     PVector p = this.points.get(k);
+     if (mouseX >= p.x && mouseX <= p.x + 10) {
+          if (mouseY >= p.y && mouseY <= p.y + 10) {
+            selectedCategory = k;
+            selectedInterval = this.options.title;
+            println(k, this.options.title);
+         }
+       }
+     }
+  }
+  
   private PVector getCoords(float ratio, PVector p1, PVector mid) {
     if (p1.x - mid.x < 0) {
       float m = (mid.y - p1.y) / (mid.x - p1.x);
@@ -266,14 +364,14 @@ public class MainVis {
       this.maxPerCategory.put("Stress Level", this.maxPerCategory.containsKey("Stress Level") ? max(p.stressLevel, this.maxPerCategory.get("Stress Level")) : p.stressLevel);
       this.maxPerCategory.put("# of Social Interactions in Person", this.maxPerCategory.containsKey("# of Social Interactions in Person") ? max(p.numOfSocialInteractions, this.maxPerCategory.get("# of Social Interactions in Person")) : p.numOfSocialInteractions);
       this.maxPerCategory.put("Leisure Time", this.maxPerCategory.containsKey("Leisure Time") ? max(p.leisureTime, this.maxPerCategory.get("Leisure Time")) : p.leisureTime);
-      this.maxPerCategory.put("# of Sleep Interruptions", this.maxPerCategory.containsKey("# of Sleep Interruptions") ? max(p.numOfSleepInteruptions, this.maxPerCategory.get("Number of Chores")) : p.numOfSleepInteruptions);
+      this.maxPerCategory.put("# of Sleep Interruptions", this.maxPerCategory.containsKey("# of Sleep Interruptions") ? max(p.numOfSleepInteruptions, this.maxPerCategory.get("# of Sleep Interruptions")) : p.numOfSleepInteruptions);
       this.maxPerCategory.put("Number of Chores", this.maxPerCategory.containsKey("Number of Chores") ? max(p.numOfChores, this.maxPerCategory.get("Number of Chores")) : p.numOfChores);
     }
     fill(this.options.backgroundColor);
     stroke(this.options.axisColor);
     strokeWeight(2);
-    float _x =  (this.x*2 + this._width) / 2 + spacing * 3;
-    float _y = (this.y*2 + this._width + spacing*2 ) / 2;
+    float _x = (this.x * 2 + this._width) / 2 + spacing * 3;
+    float _y = (this.y * 2 + this._width + spacing * 2) / 2;
     int count = 0;
     float radius = (this._width - spacing * 6) / 2;
     float angle = TWO_PI / this.categories.length + 0.0005;
@@ -288,7 +386,19 @@ public class MainVis {
 
     for (String cat: this.categories) {
       PVector p = this.points.get(cat);
-      strokeWeight(5);
+      Boolean hover = false;
+       if (mouseX >= p.x && mouseX <= p.x + 10) {
+           if (mouseY >= p.y && mouseY <= p.y + 10) {
+             hover = true;
+          }
+        }
+      
+      strokeWeight(10);
+      if (hover) {
+        stroke(0,0,255);
+      } else {
+        stroke(this.options.axisColor);
+      }
       point(p.x, p.y);
       textSize(spacing * .6);
       fill(this.options.axisColor);
@@ -354,16 +464,24 @@ public class BarChart {
     this.x = x;
     this.y = y;
     this.options = options;
-    this.xAxis = new Axis < String > (options.xAxisLabel, new String[] {
-      "a",
-      "b",
-      "c"
-    }, options.axisColor, x + floor(this._width * 0.2), y + floor(this._width * 0.8), floor(this._width * 0.8) - spacing * 2, floor(this._width * 0.2), true, this.options.backgroundColor);
-    this.yAxis = new Axis < Float > (options.yAxisLabel, new Float[] {
-      0.0,
-      1.0,
-      2.0
-    }, options.axisColor, x, y + floor(this._width * 0.2), floor(this._width * 0.2), floor(this._width * 0.6), false, this.options.backgroundColor);
+    float maxVal = 0;
+    Set<String> groups = new HashSet<String>();
+    Set<Float> values = new HashSet<Float>();
+    for(Point p : this.data.points) {
+      if(!groups.contains(p.group)) {
+        groups.add(p.group);
+      }
+      maxVal = max(maxVal, p.value);
+    }
+    
+    for(float i = 0; i <= maxVal + max(floor(maxVal/10), 5); i += max(floor(maxVal/10), 1)) {
+      values.add(i);
+    }
+    
+    println(maxVal);
+    
+    this.xAxis = new Axis < String > (options.xAxisLabel, groups.toArray(new String[groups.size()]), options.axisColor, x + floor(this._width * 0.2), y + floor(this._width * 0.8), floor(this._width * 0.8) - spacing * 2, floor(this._width * 0.2), true, this.options.backgroundColor);
+    this.yAxis = new Axis < Float > (options.yAxisLabel, values.toArray(new Float[values.size()]), options.axisColor, x, y + floor(this._width * 0.2), floor(this._width * 0.2), floor(this._width * 0.6), false, this.options.backgroundColor);
   }
 
   void draw() {
